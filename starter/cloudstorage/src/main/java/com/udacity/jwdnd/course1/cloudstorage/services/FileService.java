@@ -6,6 +6,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,5 +28,16 @@ public class FileService {
     public List<FileModel> getFiles(String username) {
         User user = userService.getUser(username);
         return fileMapper.getFileByUserId(user.getUserId());
+    }
+
+    public FileModel getFile(String username, String filename){
+        User user = userService.getUser(username);
+        FileModel file = fileMapper.getFileByFileId(filename);
+        if(file.getUserId()!=user.getUserId()){
+            return null;
+        }
+        else{
+            return file;
+        }
     }
 }
