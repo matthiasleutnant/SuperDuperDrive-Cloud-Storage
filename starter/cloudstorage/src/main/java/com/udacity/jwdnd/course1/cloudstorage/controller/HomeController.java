@@ -1,7 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,19 +22,31 @@ public class HomeController {
         this.fileService = fileService;
     }
 
-    @GetMapping
+    @RequestMapping
     public String getHomepage(Authentication authentication, Model model) {
-        return "home";
-    }
-
-    @PostMapping
-    public String postHomepage(Authentication authentication, Model model) {
+        model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
         return "home";
     }
 
     @PostMapping("/upload")
-    public String postUpload(Authentication authentication, @RequestParam("fileUpload")MultipartFile fileUpload, Model model) throws IOException {
-        int number = fileService.createFile(authentication.getName(),fileUpload);
+    public String postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
+        String error = null;
+        if (!fileUpload.getOriginalFilename().equals("")) {
+            int rowsAdded = fileService.storeFile(authentication.getName(), fileUpload);
+            if (rowsAdded < 0) {
+                error = "No new File added";
+            }
+        }
+        else{
+            error = "empty filenames are illegal";
+        }
+
+        if (error == null) {
+
+        } else {
+
+        }
+        model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
         return "home";
     }
 

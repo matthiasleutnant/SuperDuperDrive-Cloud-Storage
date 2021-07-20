@@ -45,16 +45,20 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
-                                        <th style="width: 80%" scope="col">File Name</th>
+                                        <th style="width: 80%" scope="col" >File Name</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr th:each="filemodel : ${filemodel}">
                                     <td>
-                                        <a target="_blank" class="btn btn-success">View</a>
+                                        <form action="#" th:action="@{/home/${filemodel.filename}/view}" method="GET">
+                                            <a target="_blank" class="btn btn-success">
+                                                View
+                                            </a>
+                                        </form>
                                         <a  class="btn btn-danger">Delete</a>
                                     </td>
-                                    <th scope="row">ExampleFile.txt</th>
+                                    <th th:text="${filemodel.filename}" scope="row">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>
