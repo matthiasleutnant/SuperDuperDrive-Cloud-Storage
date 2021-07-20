@@ -32,7 +32,7 @@
                                         <label id="fileUploadLabel" for="fileUpload">Upload a New File:</label>
                                     </div>
                                     <div class="col-sm-6" >
-                                        <input type="file" class="form-control-file" id="fileUpload" name="fileUpload">
+                                        <input id="fileUpload" type="file" class="form-control-file" name="fileUpload">
                                     </div>
                                     <div class="col-sm-4">
                                         <button id="uploadButton" type="submit" class="btn btn-dark">Upload</button>
@@ -52,13 +52,13 @@
                                 <tr th:each="filemodel : ${filemodel}">
                                     <td>
                                         <form action="#" th:action="@{/home/file/{filename}/view(filename=${filemodel.filename})}" method="GET">
-                                            <button id="viewButton" type="submit" target="_blank" class="btn btn-success">
+                                            <button th:id="'viewButton_'+${filemodel.filename}" type="submit" target="_blank" class="btn btn-success">
                                                 View
                                             </button>
                                         </form>
                                         <a  class="btn btn-danger">Delete</a>
                                     </td>
-                                    <th th:text="${filemodel.filename}" scope="row">ExampleFile.txt</th>
+                                    <th th:id="'filename_'+${filemodel.filename}" th:text="${filemodel.filename}" scope="row">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>
