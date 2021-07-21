@@ -1,10 +1,5 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
-import org.springframework.core.io.UrlResource;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-
 public class FileModel {
     private int fileId;
     private String filename;

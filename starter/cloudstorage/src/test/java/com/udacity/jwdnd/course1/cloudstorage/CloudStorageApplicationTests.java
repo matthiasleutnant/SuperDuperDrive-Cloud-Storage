@@ -141,7 +141,7 @@ class CloudStorageApplicationTests {
     void testUpload() {
         uploadFile();
 
-        FileModel fileModel = fileMapper.getFileByFileName(userService.getUser(username).getUserId(),"test.txt");
+        FileModel fileModel = fileMapper.getFileByFileNameAndUserId(userService.getUser(username).getUserId(),"test.txt");
         assertThat(fileModel.getFilename()).isEqualTo("test.txt");
         WebElement webElement = driver.findElement(By.id("filename_" + "test.txt"));
         assertThat(webElement.getText()).isEqualTo("test.txt");

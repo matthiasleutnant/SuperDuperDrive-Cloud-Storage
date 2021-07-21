@@ -31,7 +31,7 @@ public class FileService {
 
     public FileModel getFile(String username, String filename){
         User user = userService.getUser(username);
-        FileModel file = fileMapper.getFileByFileName(user.getUserId(),filename);
+        FileModel file = fileMapper.getFileByFileNameAndUserId(user.getUserId(),filename);
         return file;
     }
 }

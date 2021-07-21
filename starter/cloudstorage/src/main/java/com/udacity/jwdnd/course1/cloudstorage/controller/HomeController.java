@@ -1,7 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
+import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
+import com.udacity.jwdnd.course1.cloudstorage.model.NoteModel;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
+import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,19 +20,21 @@ import java.nio.file.Files;
 public class HomeController {
 
     private final FileService fileService;
+    private final NoteService noteService;
 
-    public HomeController(FileService fileService) {
+    public HomeController(FileService fileService, NoteService noteService) {
         this.fileService = fileService;
+        this.noteService = noteService;
     }
 
     @RequestMapping
-    public String getHomepage(Authentication authentication, Model model) {
+    public String getHomepage(Authentication authentication, Model model, NoteForm noteForm) {
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
         return "home";
     }
 
     @PostMapping
-    public String postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
+    public void postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model, NoteForm noteForm) throws IOException {
         String error = null;
         if (fileUpload.getOriginalFilename().equals("")) {
             error = "Empty filenames are illegal.";
@@ -51,12 +56,17 @@ public class HomeController {
             model.addAttribute("errortext",error);
         }
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
-        return "home";
+    }
+
+    @PostMapping("/note")
+    public String postNote(Authentication authentication, NoteForm noteForm,Model model){
+        noteService.storeNote(authentication.getName(),noteForm);
+        return "redirect:/home";
     }
 
     @GetMapping("/file/{filename}/view")
     public void getFileView(Authentication authentication, Model model, @PathVariable("filename") String filename,
-                              HttpServletResponse response) throws IOException {
+                              HttpServletResponse response, NoteForm noteForm) throws IOException {
         FileModel fileModel = fileService.getFile(authentication.getName(), filename);
         File tempFile = new File("src/main/resources/temp/"+filename);
         tempFile.createNewFile();
@@ -66,5 +76,4 @@ public class HomeController {
         Files.copy(tempFile.getAbsoluteFile().toPath(), response.getOutputStream());
         tempFile.delete();
     }
-
 }
