@@ -31,12 +31,7 @@ public class FileService {
 
     public FileModel getFile(String username, String filename){
         User user = userService.getUser(username);
-        FileModel file = fileMapper.getFileByFileName(filename);
-        if(file.getUserId()!=user.getUserId()){
-            return null;
-        }
-        else{
-            return file;
-        }
+        FileModel file = fileMapper.getFileByFileName(user.getUserId(),filename);
+        return file;
     }
 }

@@ -31,20 +31,24 @@ public class HomeController {
     @PostMapping
     public String postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
         String error = null;
-        if (!fileUpload.getOriginalFilename().equals("")) {
-            int rowsAdded = fileService.storeFile(authentication.getName(), fileUpload);
-            if (rowsAdded < 0) {
-                error = "No new File added";
-            }
+        if (fileUpload.getOriginalFilename().equals("")) {
+            error = "Empty filenames are illegal.";
         }
-        else{
-            error = "empty filenames are illegal";
+        if(fileService.getFile(authentication.getName(),fileUpload.getOriginalFilename())!=null){
+            error = "You have already uploaded a file with the same name.";
         }
 
         if (error == null) {
+            int rowsAdded = fileService.storeFile(authentication.getName(), fileUpload);
+            if (rowsAdded < 0) {
+                error = "No new File added.";
+                model.addAttribute("error",true);
+                model.addAttribute("errortext",error);
+            }
 
         } else {
-
+            model.addAttribute("error",true);
+            model.addAttribute("errortext",error);
         }
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
         return "home";
