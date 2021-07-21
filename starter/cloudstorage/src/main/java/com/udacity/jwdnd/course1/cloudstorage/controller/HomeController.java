@@ -34,7 +34,7 @@ public class HomeController {
     }
 
     @PostMapping
-    public void postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model, NoteForm noteForm) throws IOException {
+    public String postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
         String error = null;
         if (fileUpload.getOriginalFilename().equals("")) {
             error = "Empty filenames are illegal.";
@@ -56,17 +56,18 @@ public class HomeController {
             model.addAttribute("errortext",error);
         }
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
+        return "redirect:/home";
     }
 
     @PostMapping("/note")
     public String postNote(Authentication authentication, NoteForm noteForm,Model model){
-        noteService.storeNote(authentication.getName(),noteForm);
+        int success = noteService.storeNote(authentication.getName(),noteForm);
         return "redirect:/home";
     }
 
     @GetMapping("/file/{filename}/view")
     public void getFileView(Authentication authentication, Model model, @PathVariable("filename") String filename,
-                              HttpServletResponse response, NoteForm noteForm) throws IOException {
+                              HttpServletResponse response) throws IOException {
         FileModel fileModel = fileService.getFile(authentication.getName(), filename);
         File tempFile = new File("src/main/resources/temp/"+filename);
         tempFile.createNewFile();

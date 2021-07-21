@@ -7,6 +7,19 @@ public class NoteModel {
     private String notedescription;
     private int userid;
 
+    public NoteModel(int noteid, String notetitle, String notedescription, int userid) {
+        this.noteid = noteid;
+        this.notetitle = notetitle;
+        this.notedescription = notedescription;
+        this.userid = userid;
+    }
+
+    public NoteModel(String notetitle, String notedescription, int userid) {
+        this.notetitle = notetitle;
+        this.notedescription = notedescription;
+        this.userid = userid;
+    }
+
     public int getNoteid() {
         return noteid;
     }
