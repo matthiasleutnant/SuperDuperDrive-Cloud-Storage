@@ -25,15 +25,22 @@ public class NoteService {
         return noteMapper.insert(noteModel);
     }
 
-    public List<NoteForm> getNotes(String username) {
-        return null;
+    public List<NoteModel> getNotes(String username) {
+        User user = userService.getUser(username);
+        return noteMapper.getNoteByUserId(user.getUserId());
     }
 
-    public void editNote(String username, String oldTitle, NoteForm noteForm) {
+    public NoteModel getNote(String username, String title) {
+        User user = userService.getUser(username);
+        return noteMapper.getNoteByUserIdAndTitle(user.getUserId(), title);
+    }
 
+    public void editNote(NoteForm noteForm) {
+        noteMapper.updateNote(noteForm.getId(),noteForm.getTitle(),noteForm.getDescription());
     }
 
     public void deleteNote(String username, String title) {
-
+        User user = userService.getUser(username);
+        noteMapper.deleteNoteByUserIdAndNotetitle(user.getUserId(), title);
     }
 }

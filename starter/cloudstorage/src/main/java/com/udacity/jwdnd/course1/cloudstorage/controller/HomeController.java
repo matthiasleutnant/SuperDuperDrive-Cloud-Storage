@@ -2,7 +2,6 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
-import com.udacity.jwdnd.course1.cloudstorage.model.NoteModel;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
@@ -30,6 +29,7 @@ public class HomeController {
     @RequestMapping
     public String getHomepage(Authentication authentication, Model model, NoteForm noteForm) {
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
+        model.addAttribute("notes",noteService.getNotes(authentication.getName()));
         return "home";
     }
 
@@ -60,13 +60,24 @@ public class HomeController {
     }
 
     @PostMapping("/note")
-    public String postNote(Authentication authentication, NoteForm noteForm,Model model){
-        int success = noteService.storeNote(authentication.getName(),noteForm);
+    public String postNote(Authentication authentication, NoteForm noteForm){
+        if(noteForm.getId()==null) {
+            int success = noteService.storeNote(authentication.getName(), noteForm);
+        }
+        else{
+            noteService.editNote(noteForm);
+        }
+        return "redirect:/home";
+    }
+
+    @PostMapping("/notes/{notetitle}/delete")
+    public String postDeleteNote(Authentication authentication, @PathVariable("notetitle") String notetitle){
+        noteService.deleteNote(authentication.getName(),notetitle);
         return "redirect:/home";
     }
 
     @GetMapping("/file/{filename}/view")
-    public void getFileView(Authentication authentication, Model model, @PathVariable("filename") String filename,
+    public void getFileView(Authentication authentication, @PathVariable("filename") String filename,
                               HttpServletResponse response) throws IOException {
         FileModel fileModel = fileService.getFile(authentication.getName(), filename);
         File tempFile = new File("src/main/resources/temp/"+filename);

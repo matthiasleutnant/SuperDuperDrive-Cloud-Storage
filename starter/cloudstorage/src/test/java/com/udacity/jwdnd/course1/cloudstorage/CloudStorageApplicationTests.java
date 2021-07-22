@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
+import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
@@ -39,12 +40,13 @@ class CloudStorageApplicationTests {
     FileMapper fileMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    NoteMapper noteMapper;
 
     private String firstname = "Matthias";
     private String lastname = "Leutnant";
     private String username = "Matze";
     private String password = "superSecurePassword123";
-    private int testCounter = 0;
     private File downloadPackage;
 
     @BeforeAll
@@ -145,7 +147,27 @@ class CloudStorageApplicationTests {
         assertThat(fileModel.getFilename()).isEqualTo("test.txt");
         WebElement webElement = driver.findElement(By.id("filename_" + "test.txt"));
         assertThat(webElement.getText()).isEqualTo("test.txt");
+    }
 
+    @Test
+    void testCreateNote(){
+        String noteTitle = "testNote";
+        String noteDescription = "This is an awesome note!!!";
+        HomePage homePage = createNote(noteTitle, noteDescription);
+
+        homePage.changeToNoteTab();
+        WebElement title = driver.findElement(By.id("id_note_title"+noteTitle));
+        assertThat(title.getText()).isEqualTo(noteTitle);
+        WebElement description = driver.findElement(By.id("id_note_description"+noteTitle));
+        assertThat(description.getText()).isEqualTo(noteDescription);
+
+    }
+
+    private HomePage createNote(String noteTitle, String noteDescription) {
+        loginUser();
+        HomePage homePage = new HomePage(driver);
+        homePage.createNote(noteTitle, noteDescription);
+        return homePage;
     }
 
     private void uploadFile() {
@@ -171,6 +193,7 @@ class CloudStorageApplicationTests {
     }
 
     void cleanUp() {
+        noteMapper.deleteALL();
         fileMapper.deleteALL();
         userMapper.deleteALL();
         for(File f:downloadPackage.listFiles()) {
