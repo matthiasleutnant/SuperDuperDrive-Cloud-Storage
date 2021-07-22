@@ -1,9 +1,11 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
+import com.udacity.jwdnd.course1.cloudstorage.model.NoteModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.page.HomePage;
 import com.udacity.jwdnd.course1.cloudstorage.page.LoginPage;
@@ -12,6 +14,7 @@ import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -22,8 +25,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import java.io.File;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
@@ -42,6 +47,8 @@ class CloudStorageApplicationTests {
     UserMapper userMapper;
     @Autowired
     NoteMapper noteMapper;
+    @Autowired
+    CredentialMapper credentialMapper;
 
     private String firstname = "Matthias";
     private String lastname = "Leutnant";
@@ -170,6 +177,41 @@ class CloudStorageApplicationTests {
         return homePage;
     }
 
+    @Test
+    void testEditNote(){
+        String noteTitle = "testNote";
+        String noteDescription = "This is an awesome note!!!";
+        String newTitle = "The same old note";
+        String newDescription = "with an other content";
+        HomePage homePage = createNote(noteTitle, noteDescription);
+        homePage.editNote(noteTitle,newTitle,newDescription);
+
+
+        homePage.changeToNoteTab();
+        WebElement title = driver.findElement(By.id("id_note_title"+newTitle));
+        assertThat(title.getText()).isEqualTo(newTitle);
+        WebElement description = driver.findElement(By.id("id_note_description"+newTitle));
+        assertThat(description.getText()).isEqualTo(newDescription);
+    }
+
+    @Test
+    void testDeleteNote(){
+        String noteTitle = "testNote";
+        String noteDescription = "This is an awesome note!!!";
+        HomePage homePage = createNote(noteTitle, noteDescription);
+        homePage.deleteNote(noteTitle);
+
+        homePage.changeToNoteTab();
+        assertThatThrownBy(()->{
+            driver.findElement(By.id("id_note_title"+noteTitle));
+        }).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(()->{
+            driver.findElement(By.id("id_note_description"+noteTitle));
+        }).isInstanceOf(NoSuchElementException.class);
+        List<NoteModel> notes = noteMapper.getNoteByUserId(userService.getUser(username).getUserId());
+        assertThat(notes.isEmpty()).isTrue();
+    }
+
     private void uploadFile() {
         loginUser();
         HomePage homePage = new HomePage(driver);
@@ -183,6 +225,22 @@ class CloudStorageApplicationTests {
         assertThat(downloadedFile.isFile()).isTrue();
     }
 
+    @Test
+    void testCredentialCreation(){
+        String url="192.0.0.1";
+        String user="user";
+        String password="password";
+        createCredential(url,username,password);
+    }
+
+
+    private HomePage createCredential(String url, String username,String password) {
+        loginUser();
+        HomePage homePage = new HomePage(driver);
+        homePage.createCredential(url,username,password);
+        return homePage;
+    }
+
     private File downloadFile() throws InterruptedException {
         uploadFile();
         WebElement webElement = driver.findElement(By.id("viewButton_" + "test.txt"));
@@ -193,6 +251,7 @@ class CloudStorageApplicationTests {
     }
 
     void cleanUp() {
+        credentialMapper.deleteALL();
         noteMapper.deleteALL();
         fileMapper.deleteALL();
         userMapper.deleteALL();

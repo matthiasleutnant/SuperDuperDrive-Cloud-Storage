@@ -70,9 +70,9 @@ public class HomeController {
         return "redirect:/home";
     }
 
-    @PostMapping("/notes/{notetitle}/delete")
-    public String postDeleteNote(Authentication authentication, @PathVariable("notetitle") String notetitle){
-        noteService.deleteNote(authentication.getName(),notetitle);
+    @PostMapping("/notes/{noteid}/delete")
+    public String postDeleteNote(Authentication authentication, @PathVariable("noteid") int noteid){
+        noteService.deleteNote(authentication.getName(),noteid);
         return "redirect:/home";
     }
 

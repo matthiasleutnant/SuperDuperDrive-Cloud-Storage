@@ -16,11 +16,9 @@ public interface NoteMapper {
     @Select("SELECT * FROM NOTES WHERE userid = #{userId}")
     List<NoteModel> getNoteByUserId(int userId);
 
-    @Select("SELECT * FROM NOTES WHERE notetitle = #{notetitle} AND userid=#{userid}")
-    NoteModel getNoteByUserIdAndTitle(int userid, String notetitle);
 
-    @Delete("DELETE FROM NOTES WHERE notetitle = #{notetitle} AND userid=#{userid}")
-    int deleteNoteByUserIdAndNotetitle(int userid, String notetitle);
+    @Delete("DELETE FROM NOTES WHERE noteid = #{noteid} AND userid=#{userid}")
+    int deleteNoteByUserIdAndNoteid(int userid, int noteid);
 
     @Update("UPDATE NOTES SET notetitle = #{notetitle}, notedescription= #{notedescription} WHERE noteid = #{noteid}")
     void updateNote(int noteid, String notetitle, String notedescription);

@@ -23,6 +23,9 @@ public class HomePage {
     @FindBy(id = "nav-notes-tab")
     WebElement notesTab;
 
+    @FindBy(id = "nav-credentials-tab")
+    WebElement credentialsTab;
+
     @FindBy(id = "newNoteButton")
     WebElement newNoteButton;
 
@@ -31,6 +34,10 @@ public class HomePage {
 
     @FindBy(id = "editNoteDescription")
     WebElement editNoteDescription;
+
+    @FindBy(id = "newCredentialButton")
+    WebElement newCredentialButton;
+
     WebDriver driver;
 
     public HomePage(WebDriver webDriver) {
@@ -50,6 +57,8 @@ public class HomePage {
 
     public void changeToNoteTab(){
         notesTab.click();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement noteSubmit = wait.until(webDriver -> webDriver.findElement(By.id("noteTitleLabel")));
     }
 
     public void createNote(String title, String description) {
@@ -61,5 +70,47 @@ public class HomePage {
         WebDriverWait wait = new WebDriverWait(driver, 10);
         WebElement noteSubmit = wait.until(webDriver -> webDriver.findElement(By.id("saveNoteChanges")));
         noteSubmit.click();
+    }
+
+    public void editNote(String notetitle, CharSequence newTitle, CharSequence newDescription){
+        changeToNoteTab();
+        WebElement editButton = driver.findElement(By.name("editNoteButton_"+notetitle));
+        editButton.click();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement noteSubmit = wait.until(webDriver -> webDriver.findElement(By.id("saveNoteChanges")));
+        editNoteTitle.clear();
+        editNoteTitle.sendKeys(newTitle);
+        editNoteDescription.clear();
+        editNoteDescription.sendKeys(newDescription);
+        noteSubmit.click();
+    }
+
+    public void deleteNote(String notetitle){
+        changeToNoteTab();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement deleteButton = wait.until(webDriver -> webDriver.findElement(By.id("delete_note_button_"+notetitle)));
+        deleteButton.click();
+    }
+
+
+    public void changeToCredentialsTab(){
+        credentialsTab.click();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(webDriver -> webDriver.findElement(By.id("urlLabel")));
+    }
+
+    public void createCredential(String url, String username, String password){
+        changeToCredentialsTab();
+        newCredentialButton.click();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement urlText = wait.until(webDriver -> webDriver.findElement(By.id("credential-url")));
+        WebElement userText = wait.until(webDriver -> webDriver.findElement(By.id("credential-username")));
+        WebElement passText = wait.until(webDriver -> webDriver.findElement(By.id("credential-password")));
+
+        urlText.sendKeys(url);
+        passText.sendKeys(password);
+        userText.sendKeys(username);
+        WebElement credentialSubmit = wait.until(webDriver -> webDriver.findElement(By.id("credentialSubmitButton")));
+        credentialSubmit.click();
     }
 }

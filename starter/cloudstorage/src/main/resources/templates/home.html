@@ -77,16 +77,16 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
-                                        <th style="width: 20%" scope="col">Title</th>
+                                        <th id="noteTitleLabel" style="width: 20%" scope="col">Title</th>
                                         <th style="width: 60%" scope="col">Description</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:each="note : ${notes}">
                                         <td>
-                                            <button type="submit" class="btn btn-success" th:data-parameter1="${note.getNoteid()}" th:data-parameter2="${note.getNotetitle()}" th:data-parameter3="${note.getNotedescription()}" th:onclick="showNoteModal(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'))">Edit</button>
-                                            <form action="#" th:action="@{/home/notes/{notetitle}/delete(notetitle=${note.getNotetitle()})}" method="POST">
-                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            <button th:name="'editNoteButton_'+${note.getNotetitle()}" type="submit" class="btn btn-success" th:data-parameter1="${note.getNoteid()}" th:data-parameter2="${note.getNotetitle()}" th:data-parameter3="${note.getNotedescription()}" th:onclick="showNoteModal(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'))">Edit</button>
+                                            <form action="#" th:action="@{/home/notes/{noteid}/delete(noteid=${note.getNoteid()})}" method="POST">
+                                                <button th:id="'delete_note_button_'+${note.getNotetitle()}" type="submit" class="btn btn-danger">Delete</button>
                                             </form>
                                         </td>
                                         <th th:id="'id_note_title'+${note.getNotetitle()}" th:text="${note.getNotetitle()}" scope="row">Example Note Title</th>
@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
+                        <button id="newCredentialButton" style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
                             + Add a New Credential
                         </button>
 
@@ -137,7 +137,7 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 20%" scope="col"></th>
-                                        <th style="width: 35%" scope="col">URL</th>
+                                        <th id="urlLabel" style="width: 35%" scope="col">URL</th>
                                         <th style="width: 20%" scope="col">Username</th>
                                         <th style="width: 25%" scope="col">Password</th>
                                     </tr>
@@ -185,7 +185,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">Save changes</button>
+                                        <button id="credentialSubmitButton" type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">Save changes</button>
                                     </div>
                                 </div>
                             </div>

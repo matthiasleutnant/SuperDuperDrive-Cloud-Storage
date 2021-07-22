@@ -30,17 +30,12 @@ public class NoteService {
         return noteMapper.getNoteByUserId(user.getUserId());
     }
 
-    public NoteModel getNote(String username, String title) {
-        User user = userService.getUser(username);
-        return noteMapper.getNoteByUserIdAndTitle(user.getUserId(), title);
-    }
-
     public void editNote(NoteForm noteForm) {
         noteMapper.updateNote(noteForm.getId(),noteForm.getTitle(),noteForm.getDescription());
     }
 
-    public void deleteNote(String username, String title) {
+    public void deleteNote(String username, int noteid) {
         User user = userService.getUser(username);
-        noteMapper.deleteNoteByUserIdAndNotetitle(user.getUserId(), title);
+        noteMapper.deleteNoteByUserIdAndNoteid(user.getUserId(), noteid);
     }
 }
