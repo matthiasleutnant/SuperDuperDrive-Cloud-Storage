@@ -120,6 +120,25 @@ public class HomePage {
         credentialSubmit.click();
     }
 
+    public void editCredential(String oldUrl,String url, String username, String password){
+        changeToCredentialsTab();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement editButton = wait.until(webDriver -> webDriver.findElement(By.name("editCredentialButton_"+oldUrl)));
+        editButton.click();
+        WebElement urlText = wait.until(webDriver -> webDriver.findElement(By.id("credential-url")));
+        WebElement userText = wait.until(webDriver -> webDriver.findElement(By.id("credential-username")));
+        WebElement passText = wait.until(webDriver -> webDriver.findElement(By.id("credential-password")));
+        urlText.clear();
+        passText.clear();
+        userText.clear();
+        urlText.sendKeys(url);
+        passText.sendKeys(password);
+        userText.sendKeys(username);
+        WebElement credentialSubmit = wait.until(webDriver -> webDriver.findElement(By.id("credentialSubmitButton")));
+        credentialSubmit.click();
+
+    }
+
     public void deleteCredential(String url){
         changeToCredentialsTab();
         WebDriverWait wait = new WebDriverWait(driver, 10);

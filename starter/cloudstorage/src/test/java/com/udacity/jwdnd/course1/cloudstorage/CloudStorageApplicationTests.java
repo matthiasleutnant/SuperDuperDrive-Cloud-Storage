@@ -149,24 +149,25 @@ class CloudStorageApplicationTests {
 
     @Test
     void testUpload() {
-        uploadFile("src/test/resources/test.txt");
+        String filename = "test.txt";
+        uploadFile("test.txt");
 
-        FileModel fileModel = fileMapper.getFileByFileNameAndUserId(userService.getUser(username).getUserId(),"test.txt");
+        FileModel fileModel = fileMapper.getFileByFileNameAndUserId(userService.getUser(username).getUserId(), "test.txt");
         assertThat(fileModel.getFilename()).isEqualTo("test.txt");
         WebElement webElement = driver.findElement(By.name("filename_" + "test.txt"));
         assertThat(webElement.getText()).isEqualTo("test.txt");
     }
 
     @Test
-    void testCreateNote(){
+    void testCreateNote() {
         String noteTitle = "testNote";
         String noteDescription = "This is an awesome note!!!";
         HomePage homePage = createNote(noteTitle, noteDescription);
 
         homePage.changeToNoteTab();
-        WebElement title = driver.findElement(By.id("id_note_title"+noteTitle));
+        WebElement title = driver.findElement(By.id("id_note_title" + noteTitle));
         assertThat(title.getText()).isEqualTo(noteTitle);
-        WebElement description = driver.findElement(By.id("id_note_description"+noteTitle));
+        WebElement description = driver.findElement(By.id("id_note_description" + noteTitle));
         assertThat(description.getText()).isEqualTo(noteDescription);
 
     }
@@ -179,42 +180,42 @@ class CloudStorageApplicationTests {
     }
 
     @Test
-    void testEditNote(){
+    void testEditNote() {
         String noteTitle = "testNote";
         String noteDescription = "This is an awesome note!!!";
         String newTitle = "The same old note";
         String newDescription = "with an other content";
         HomePage homePage = createNote(noteTitle, noteDescription);
-        homePage.editNote(noteTitle,newTitle,newDescription);
+        homePage.editNote(noteTitle, newTitle, newDescription);
 
 
         homePage.changeToNoteTab();
-        WebElement title = driver.findElement(By.id("id_note_title"+newTitle));
+        WebElement title = driver.findElement(By.id("id_note_title" + newTitle));
         assertThat(title.getText()).isEqualTo(newTitle);
-        WebElement description = driver.findElement(By.id("id_note_description"+newTitle));
+        WebElement description = driver.findElement(By.id("id_note_description" + newTitle));
         assertThat(description.getText()).isEqualTo(newDescription);
     }
 
     @Test
-    void testDeleteNote(){
+    void testDeleteNote() {
         String noteTitle = "testNote";
         String noteDescription = "This is an awesome note!!!";
         HomePage homePage = createNote(noteTitle, noteDescription);
         homePage.deleteNote(noteTitle);
 
         homePage.changeToNoteTab();
-        assertThatThrownBy(()->{
-            driver.findElement(By.id("id_note_title"+noteTitle));
+        assertThatThrownBy(() -> {
+            driver.findElement(By.id("id_note_title" + noteTitle));
         }).isInstanceOf(NoSuchElementException.class);
-        assertThatThrownBy(()->{
-            driver.findElement(By.id("id_note_description"+noteTitle));
+        assertThatThrownBy(() -> {
+            driver.findElement(By.id("id_note_description" + noteTitle));
         }).isInstanceOf(NoSuchElementException.class);
         List<NoteModel> notes = noteMapper.getNoteByUserId(userService.getUser(username).getUserId());
         assertThat(notes.isEmpty()).isTrue();
     }
 
     private HomePage uploadFile(String filename) {
-        String path= "src/test/resources/"+filename;
+        String path = "src/test/resources/" + filename;
         loginUser();
         HomePage homePage = new HomePage(driver);
         File file = new File(path);
@@ -230,67 +231,76 @@ class CloudStorageApplicationTests {
     }
 
     @Test
-    void deleteFile(){
+    void deleteFile() {
         String filename = "test.txt";
         HomePage homePage = uploadFile(filename);
         homePage.deleteFile(filename);
 
         List<FileModel> files = fileMapper.getFileByUserId(userService.getUser(username).getUserId());
         assertThat(files.isEmpty()).isTrue();
-        assertThatThrownBy(()->{
-            driver.findElement(By.name("filename_"+filename));
+        assertThatThrownBy(() -> {
+            driver.findElement(By.name("filename_" + filename));
         }).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
-    void testCredentialCreation(){
-        String url="192.168.0.1";
-        String user="user";
-        String password="Geheimespassword";
-        HomePage homePage =createCredential(url,user,password);
+    void testCredentialCreation() {
+        String url = "192.168.0.1";
+        String user = "user";
+        String password = "Geheimespassword";
+        HomePage homePage = createCredential(url, user, password);
 
         List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
         assertThat(creadential.isEmpty()).isFalse();
         assertThat(creadential.size()).isEqualTo(1);
         assertThat(creadential.get(0).getUrl()).isEqualTo(url);
         assertThat(creadential.get(0).getUsername()).isEqualTo(user);
-        assertThat(creadential.get(0).getPassword()).isEqualTo(password);
+        assertThat(creadential.get(0).getPassword()).isNotEqualTo(password);
         assertThat(creadential.get(0).getUserid()).isEqualTo(userService.getUser(username).getUserId());
         homePage.changeToCredentialsTab();
-        WebElement urltext = driver.findElement(By.name("credential_url_"+url));
+        WebElement urltext = driver.findElement(By.name("credential_url_" + url));
         assertThat(urltext.getText()).isEqualTo(url);
-        WebElement usertext = driver.findElement(By.name("credential_user_"+url));
+        WebElement usertext = driver.findElement(By.name("credential_user_" + url));
         assertThat(usertext.getText()).isEqualTo(user);
-        WebElement passwordtext = driver.findElement(By.name("credential_password_"+url));
-        assertThat(passwordtext.getText()).isEqualTo(password);
+        WebElement passwordtext = driver.findElement(By.name("credential_password_" + url));
+        assertThat(passwordtext.getText()).isNotEqualTo(password);
     }
 
     @Test
-    void testCredentialDeletion(){
-        String url="192.168.0.1";
-        String user="user";
-        String password="Geheimespassword";
-        HomePage homePage =createCredential(url,user,password);
+    void testCredentialEditing() {
+        String url = "192.168.0.1";
+        String user = "user";
+        String password = "Geheimespasswort";
+        HomePage homePage = createCredential(url, user, password);
+        homePage.editCredential(url,url+":8080","user2","superGeheimespasswort123");
+    }
+
+    @Test
+    void testCredentialDeletion() {
+        String url = "192.168.0.1";
+        String user = "user";
+        String password = "Geheimespassword";
+        HomePage homePage = createCredential(url, user, password);
         homePage.deleteCredential(url);
 
         List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
         assertThat(creadential.isEmpty()).isTrue();
-        assertThatThrownBy(()->{
-            driver.findElement(By.id("credential_url_"+url));
+        assertThatThrownBy(() -> {
+            driver.findElement(By.id("credential_url_" + url));
         }).isInstanceOf(NoSuchElementException.class);
-        assertThatThrownBy(()->{
-            driver.findElement(By.id("credential_user_"+url));
+        assertThatThrownBy(() -> {
+            driver.findElement(By.id("credential_user_" + url));
         }).isInstanceOf(NoSuchElementException.class);
-        assertThatThrownBy(()->{
-            driver.findElement(By.id("credential_password_"+url));
+        assertThatThrownBy(() -> {
+            driver.findElement(By.id("credential_password_" + url));
         }).isInstanceOf(NoSuchElementException.class);
     }
 
 
-    private HomePage createCredential(String url, String username,String password) {
+    private HomePage createCredential(String url, String username, String password) {
         loginUser();
         HomePage homePage = new HomePage(driver);
-        homePage.createCredential(url,username,password);
+        homePage.createCredential(url, username, password);
         return homePage;
     }
 
@@ -298,11 +308,10 @@ class CloudStorageApplicationTests {
         uploadFile(filename);
         WebElement webElement = driver.findElement(By.id("viewButton_" + filename));
         webElement.click();
-        File downloadedFile = new File(downloadPackage.getAbsolutePath()+"/"+filename);
+        File downloadedFile = new File(downloadPackage.getAbsolutePath() + "/" + filename);
         Thread.sleep(500);
         return downloadedFile;
     }
-
 
 
     void cleanUp() {
@@ -310,7 +319,7 @@ class CloudStorageApplicationTests {
         noteMapper.deleteALL();
         fileMapper.deleteALL();
         userMapper.deleteALL();
-        for(File f:downloadPackage.listFiles()) {
+        for (File f : downloadPackage.listFiles()) {
             f.delete();
         }
     }

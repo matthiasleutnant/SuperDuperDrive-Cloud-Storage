@@ -1,12 +1,21 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.udacity.jwdnd.course1.cloudstorage.services.AesCtrArgon2HmacExample;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
+
+import java.util.Map;
+
 public class CredentialModel {
+    private static Gson gson = new Gson();
     private Integer credentialid;
     private String url;
     private String username;
     private String key;
     private String password;
     private Integer userid;
+    private String encryptedPassword;
 
     public CredentialModel(Integer credentialid, String url, String username, String key, String password, Integer userid) {
         this.credentialid = credentialid;
@@ -15,6 +24,14 @@ public class CredentialModel {
         this.key = key;
         this.password = password;
         this.userid = userid;
+
+        try {
+            Map<String, String> map = gson.fromJson(password, Map.class);
+            setEncryptedPassword(map.get("cipherText"));
+        }
+        catch (JsonSyntaxException e){
+
+        }
     }
 
     public CredentialModel(String url, String username, String key, String password, Integer userid) {
@@ -59,6 +76,18 @@ public class CredentialModel {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
+    }
+
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    public String getTruePassword(){
+        return CredentialService.decryptPassword(getPassword(),key);
     }
 
     public void setPassword(String password) {

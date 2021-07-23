@@ -70,7 +70,7 @@ public class HomeController {
     @PostMapping("/note")
     public String postNote(Authentication authentication, NoteForm noteForm){
         if(noteForm.getId()==null) {
-            int success = noteService.storeNote(authentication.getName(), noteForm);
+            noteService.storeNote(authentication.getName(), noteForm);
         }
         else{
             noteService.editNote(noteForm);
@@ -98,8 +98,13 @@ public class HomeController {
     }
 
     @PostMapping("/credential")
-    public String postCredential(Authentication authentication,CredentialForm credentialForm){
-        credentialService.storeCredential(authentication.getName(),credentialForm);
+    public String postCredential(Authentication authentication,CredentialForm credentialForm) throws Exception {
+        if(credentialForm.getCredentialid()==null) {
+            credentialService.storeCredential(authentication.getName(), credentialForm);
+        }
+        else {
+            credentialService.editCredential(authentication.getName(), credentialForm);
+        }
         return "redirect:/home";
     }
 
