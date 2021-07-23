@@ -55,6 +55,12 @@ public class HomePage {
         uploadButton.click();
     }
 
+    public void deleteFile(String filename){
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement fileDelete = wait.until(webDriver -> webDriver.findElement(By.name("delete_file_button_"+filename)));
+        fileDelete.click();
+    }
+
     public void changeToNoteTab(){
         notesTab.click();
         WebDriverWait wait = new WebDriverWait(driver, 10);
@@ -96,7 +102,7 @@ public class HomePage {
     public void changeToCredentialsTab(){
         credentialsTab.click();
         WebDriverWait wait = new WebDriverWait(driver, 10);
-        wait.until(webDriver -> webDriver.findElement(By.id("urlLabel")));
+        wait.until(webDriver -> webDriver.findElement(By.id("newCredentialButton")));
     }
 
     public void createCredential(String url, String username, String password){
@@ -112,5 +118,12 @@ public class HomePage {
         userText.sendKeys(username);
         WebElement credentialSubmit = wait.until(webDriver -> webDriver.findElement(By.id("credentialSubmitButton")));
         credentialSubmit.click();
+    }
+
+    public void deleteCredential(String url){
+        changeToCredentialsTab();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement urlDelete = wait.until(webDriver -> webDriver.findElement(By.name("credential_delete_"+url)));
+        urlDelete.click();
     }
 }

@@ -1,7 +1,9 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.CredentialForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
@@ -20,21 +22,27 @@ public class HomeController {
 
     private final FileService fileService;
     private final NoteService noteService;
+    private final CredentialService credentialService;
 
-    public HomeController(FileService fileService, NoteService noteService) {
+    public HomeController(FileService fileService, NoteService noteService, CredentialService credentialService) {
         this.fileService = fileService;
         this.noteService = noteService;
+        this.credentialService = credentialService;
     }
 
     @RequestMapping
-    public String getHomepage(Authentication authentication, Model model, NoteForm noteForm) {
+    public String getHomepage(Authentication authentication, Model model, NoteForm noteForm,
+                              CredentialForm credentialForm) {
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
         model.addAttribute("notes",noteService.getNotes(authentication.getName()));
+        model.addAttribute("credentials",credentialService.getCredentials(authentication.getName()));
+
         return "home";
     }
 
     @PostMapping
-    public String postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
+    public String postUpload(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload,
+                             Model model) throws IOException {
         String error = null;
         if (fileUpload.getOriginalFilename().equals("")) {
             error = "Empty filenames are illegal.";
@@ -71,7 +79,7 @@ public class HomeController {
     }
 
     @PostMapping("/notes/{noteid}/delete")
-    public String postDeleteNote(Authentication authentication, @PathVariable("noteid") int noteid){
+    public String postNoteDelete(Authentication authentication, @PathVariable("noteid") int noteid){
         noteService.deleteNote(authentication.getName(),noteid);
         return "redirect:/home";
     }
@@ -87,5 +95,23 @@ public class HomeController {
         response.setContentType(fileModel.getContenttype());
         Files.copy(tempFile.getAbsoluteFile().toPath(), response.getOutputStream());
         tempFile.delete();
+    }
+
+    @PostMapping("/credential")
+    public String postCredential(Authentication authentication,CredentialForm credentialForm){
+        credentialService.storeCredential(authentication.getName(),credentialForm);
+        return "redirect:/home";
+    }
+
+    @PostMapping("/credentials/{credentialid}/delete")
+    public String postCredentialDelete(Authentication authentication, @PathVariable("credentialid") int credentialid){
+        credentialService.deleteCredential(authentication.getName(),credentialid);
+        return "redirect:/home";
+    }
+
+    @PostMapping("/file/{fileid}/delete")
+    public String postFileDelete(Authentication authentication, @PathVariable("fileid") int fileid){
+        fileService.deleteFile(authentication.getName(),fileid);
+        return "redirect:/home";
     }
 }

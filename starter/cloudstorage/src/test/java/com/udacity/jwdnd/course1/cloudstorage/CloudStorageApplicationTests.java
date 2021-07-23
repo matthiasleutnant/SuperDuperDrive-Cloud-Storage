@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
+import com.udacity.jwdnd.course1.cloudstorage.model.CredentialModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
@@ -148,11 +149,11 @@ class CloudStorageApplicationTests {
 
     @Test
     void testUpload() {
-        uploadFile();
+        uploadFile("src/test/resources/test.txt");
 
         FileModel fileModel = fileMapper.getFileByFileNameAndUserId(userService.getUser(username).getUserId(),"test.txt");
         assertThat(fileModel.getFilename()).isEqualTo("test.txt");
-        WebElement webElement = driver.findElement(By.id("filename_" + "test.txt"));
+        WebElement webElement = driver.findElement(By.name("filename_" + "test.txt"));
         assertThat(webElement.getText()).isEqualTo("test.txt");
     }
 
@@ -212,25 +213,77 @@ class CloudStorageApplicationTests {
         assertThat(notes.isEmpty()).isTrue();
     }
 
-    private void uploadFile() {
+    private HomePage uploadFile(String filename) {
+        String path= "src/test/resources/"+filename;
         loginUser();
         HomePage homePage = new HomePage(driver);
-        File file = new File("src/test/resources/test.txt");
+        File file = new File(path);
         homePage.upload(file);
+        return homePage;
     }
 
     @Test
     void testDownload() throws InterruptedException {
-        File downloadedFile = downloadFile();
+        String filename = "test.txt";
+        File downloadedFile = downloadFile(filename);
         assertThat(downloadedFile.isFile()).isTrue();
     }
 
     @Test
+    void deleteFile(){
+        String filename = "test.txt";
+        HomePage homePage = uploadFile(filename);
+        homePage.deleteFile(filename);
+
+        List<FileModel> files = fileMapper.getFileByUserId(userService.getUser(username).getUserId());
+        assertThat(files.isEmpty()).isTrue();
+        assertThatThrownBy(()->{
+            driver.findElement(By.name("filename_"+filename));
+        }).isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
     void testCredentialCreation(){
-        String url="192.0.0.1";
+        String url="192.168.0.1";
         String user="user";
-        String password="password";
-        createCredential(url,username,password);
+        String password="Geheimespassword";
+        HomePage homePage =createCredential(url,user,password);
+
+        List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
+        assertThat(creadential.isEmpty()).isFalse();
+        assertThat(creadential.size()).isEqualTo(1);
+        assertThat(creadential.get(0).getUrl()).isEqualTo(url);
+        assertThat(creadential.get(0).getUsername()).isEqualTo(user);
+        assertThat(creadential.get(0).getPassword()).isEqualTo(password);
+        assertThat(creadential.get(0).getUserid()).isEqualTo(userService.getUser(username).getUserId());
+        homePage.changeToCredentialsTab();
+        WebElement urltext = driver.findElement(By.name("credential_url_"+url));
+        assertThat(urltext.getText()).isEqualTo(url);
+        WebElement usertext = driver.findElement(By.name("credential_user_"+url));
+        assertThat(usertext.getText()).isEqualTo(user);
+        WebElement passwordtext = driver.findElement(By.name("credential_password_"+url));
+        assertThat(passwordtext.getText()).isEqualTo(password);
+    }
+
+    @Test
+    void testCredentialDeletion(){
+        String url="192.168.0.1";
+        String user="user";
+        String password="Geheimespassword";
+        HomePage homePage =createCredential(url,user,password);
+        homePage.deleteCredential(url);
+
+        List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
+        assertThat(creadential.isEmpty()).isTrue();
+        assertThatThrownBy(()->{
+            driver.findElement(By.id("credential_url_"+url));
+        }).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(()->{
+            driver.findElement(By.id("credential_user_"+url));
+        }).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(()->{
+            driver.findElement(By.id("credential_password_"+url));
+        }).isInstanceOf(NoSuchElementException.class);
     }
 
 
@@ -241,14 +294,16 @@ class CloudStorageApplicationTests {
         return homePage;
     }
 
-    private File downloadFile() throws InterruptedException {
-        uploadFile();
-        WebElement webElement = driver.findElement(By.id("viewButton_" + "test.txt"));
+    private File downloadFile(String filename) throws InterruptedException {
+        uploadFile(filename);
+        WebElement webElement = driver.findElement(By.id("viewButton_" + filename));
         webElement.click();
-        File downloadedFile = new File(downloadPackage.getAbsolutePath()+"/test.txt");
+        File downloadedFile = new File(downloadPackage.getAbsolutePath()+"/"+filename);
         Thread.sleep(500);
         return downloadedFile;
     }
+
+
 
     void cleanUp() {
         credentialMapper.deleteALL();

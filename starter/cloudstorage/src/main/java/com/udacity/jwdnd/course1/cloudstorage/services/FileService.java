@@ -34,4 +34,9 @@ public class FileService {
         FileModel file = fileMapper.getFileByFileNameAndUserId(user.getUserId(),filename);
         return file;
     }
+
+    public void deleteFile(String username, int fileid) {
+        User user = userService.getUser(username);
+        fileMapper.deleteFileByUserIdAndFileid(user.getUserId(), fileid);
+    }
 }
