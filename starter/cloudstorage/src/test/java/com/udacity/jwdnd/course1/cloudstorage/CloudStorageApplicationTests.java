@@ -256,8 +256,9 @@ class CloudStorageApplicationTests {
         assertThat(creadential.get(0).getUrl()).isEqualTo(url);
         assertThat(creadential.get(0).getUsername()).isEqualTo(user);
         assertThat(creadential.get(0).getPassword()).isNotEqualTo(password);
+        assertThat(creadential.get(0).getTruePassword()).isEqualTo(password);
+        assertThat(homePage.getUnencryptedPassword(url)).isEqualTo(password);
         assertThat(creadential.get(0).getUserid()).isEqualTo(userService.getUser(username).getUserId());
-        homePage.changeToCredentialsTab();
         WebElement urltext = driver.findElement(By.name("credential_url_" + url));
         assertThat(urltext.getText()).isEqualTo(url);
         WebElement usertext = driver.findElement(By.name("credential_user_" + url));
@@ -272,7 +273,26 @@ class CloudStorageApplicationTests {
         String user = "user";
         String password = "Geheimespasswort";
         HomePage homePage = createCredential(url, user, password);
-        homePage.editCredential(url,url+":8080","user2","superGeheimespasswort123");
+        String newUrl = url+":8080";
+        String newUser = "user2";
+        String newpw = "superGeheimespasswort123";
+        homePage.editCredential(url,newUrl,newUser,newpw);
+
+        List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
+        assertThat(creadential.isEmpty()).isFalse();
+        assertThat(creadential.size()).isEqualTo(1);
+        assertThat(creadential.get(0).getUrl()).isEqualTo(newUrl);
+        assertThat(creadential.get(0).getUsername()).isEqualTo(newUser);
+        assertThat(creadential.get(0).getPassword()).isNotEqualTo(newpw);
+        assertThat(creadential.get(0).getTruePassword()).isEqualTo(newpw);
+        assertThat(homePage.getUnencryptedPassword(newUrl)).isEqualTo(newpw);
+        assertThat(creadential.get(0).getUserid()).isEqualTo(userService.getUser(username).getUserId());
+        WebElement urltext = driver.findElement(By.name("credential_url_" + newUrl));
+        assertThat(urltext.getText()).isEqualTo(newUrl);
+        WebElement usertext = driver.findElement(By.name("credential_user_" + newUrl));
+        assertThat(usertext.getText()).isEqualTo(newUser);
+        WebElement passwordtext = driver.findElement(By.name("credential_password_" + newUrl));
+        assertThat(passwordtext.getText()).isNotEqualTo(newpw);
     }
 
     @Test
