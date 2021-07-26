@@ -35,8 +35,8 @@ public class FileService {
         return file;
     }
 
-    public void deleteFile(String username, int fileid) {
+    public int deleteFile(String username, int fileid) {
         User user = userService.getUser(username);
-        fileMapper.deleteFileByUserIdAndFileid(user.getUserId(), fileid);
+        return fileMapper.deleteFileByUserIdAndFileid(user.getUserId(), fileid);
     }
 }

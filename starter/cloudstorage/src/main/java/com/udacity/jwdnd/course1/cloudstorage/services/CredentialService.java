@@ -34,7 +34,7 @@ public class CredentialService {
         return credentialMapper.getCredentialByUserId(user.getUserId());
     }
 
-    public void editCredential(String username,CredentialForm credentialForm) throws Exception {
+    public int editCredential(String username,CredentialForm credentialForm) throws Exception {
         CredentialModel credential = credentialMapper.getCredentialByCredentialId(credentialForm.getCredentialid());
         User user = userService.getUser(username);
         if(user.getUserId()==credential.getUserid()){
@@ -42,13 +42,14 @@ public class CredentialService {
             credential.setUsername(credentialForm.getUsername());
             credential.setPassword(credentialForm.getPassword());
             credential = encryptPassword(credential);
-            credentialMapper.updateCredential(credential);
+            return credentialMapper.updateCredential(credential);
         }
+        return -1;
     }
 
-    public void deleteCredential(String username, int credentialid) {
+    public int deleteCredential(String username, int credentialid) {
         User user = userService.getUser(username);
-        credentialMapper.deleteCredentialByCredentialId(credentialid, user.getUserId());
+        return credentialMapper.deleteCredentialByCredentialId(credentialid, user.getUserId());
     }
 
     private CredentialModel encryptPassword(CredentialModel credentialModel) throws Exception {

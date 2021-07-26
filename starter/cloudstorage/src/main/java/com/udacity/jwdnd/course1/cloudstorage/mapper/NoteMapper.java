@@ -21,7 +21,7 @@ public interface NoteMapper {
     int deleteNoteByUserIdAndNoteid(int userid, int noteid);
 
     @Update("UPDATE NOTES SET notetitle = #{notetitle}, notedescription= #{notedescription} WHERE noteid = #{noteid}")
-    void updateNote(int noteid, String notetitle, String notedescription);
+    int updateNote(int noteid, String notetitle, String notedescription);
 
     @Delete("DELETE FROM NOTES")
     int deleteALL();

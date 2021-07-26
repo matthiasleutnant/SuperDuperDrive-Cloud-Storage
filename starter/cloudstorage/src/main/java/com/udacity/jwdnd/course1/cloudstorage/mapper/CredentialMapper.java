@@ -23,7 +23,7 @@ public interface CredentialMapper {
     int deleteCredentialByCredentialId(int credentialid, int userid);
 
     @Update("UPDATE CREDENTIALS SET url = #{url}, username= #{username}, password= #{password} WHERE credentialid = #{credentialid}")
-    void updateCredential(CredentialModel credentialModel);
+    int updateCredential(CredentialModel credentialModel);
 
     @Delete("DELETE FROM CREDENTIALS")
     int deleteALL();

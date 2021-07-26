@@ -145,6 +145,8 @@ class CloudStorageApplicationTests {
         homePage.logout();
 
         assertThat(driver.getTitle()).isEqualTo("Login");
+        driver.get(url+"/home");
+        assertThat(driver.getTitle()).isNotEqualTo("Home");
     }
 
     @Test
@@ -273,10 +275,10 @@ class CloudStorageApplicationTests {
         String user = "user";
         String password = "Geheimespasswort";
         HomePage homePage = createCredential(url, user, password);
-        String newUrl = url+":8080";
+        String newUrl = url + ":8080";
         String newUser = "user2";
         String newpw = "superGeheimespasswort123";
-        homePage.editCredential(url,newUrl,newUser,newpw);
+        homePage.editCredential(url, newUrl, newUser, newpw);
 
         List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
         assertThat(creadential.isEmpty()).isFalse();
@@ -293,6 +295,13 @@ class CloudStorageApplicationTests {
         assertThat(usertext.getText()).isEqualTo(newUser);
         WebElement passwordtext = driver.findElement(By.name("credential_password_" + newUrl));
         assertThat(passwordtext.getText()).isNotEqualTo(newpw);
+    }
+
+    @Test
+    void testRedirectAfterLogin() {
+        loginUser();
+        driver.get(url + "/test");
+        assertThat(driver.getCurrentUrl()).isEqualTo(url+"/home");
     }
 
     @Test

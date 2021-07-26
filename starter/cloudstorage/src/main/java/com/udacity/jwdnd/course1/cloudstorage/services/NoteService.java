@@ -30,12 +30,12 @@ public class NoteService {
         return noteMapper.getNoteByUserId(user.getUserId());
     }
 
-    public void editNote(NoteForm noteForm) {
-        noteMapper.updateNote(noteForm.getId(),noteForm.getTitle(),noteForm.getDescription());
+    public int editNote(NoteForm noteForm) {
+        return noteMapper.updateNote(noteForm.getId(),noteForm.getTitle(),noteForm.getDescription());
     }
 
-    public void deleteNote(String username, int noteid) {
+    public int deleteNote(String username, int noteid) {
         User user = userService.getUser(username);
-        noteMapper.deleteNoteByUserIdAndNoteid(user.getUserId(), noteid);
+        return noteMapper.deleteNoteByUserIdAndNoteid(user.getUserId(), noteid);
     }
 }
