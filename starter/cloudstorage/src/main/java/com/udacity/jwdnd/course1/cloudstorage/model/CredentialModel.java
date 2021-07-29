@@ -2,36 +2,26 @@ package com.udacity.jwdnd.course1.cloudstorage.model;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.udacity.jwdnd.course1.cloudstorage.services.AesCtrArgon2HmacExample;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
+import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
-public class CredentialModel {
+public class CredentialModel extends AbstractModel{
     private static Gson gson = new Gson();
-    private Integer credentialid;
     private String url;
     private String username;
     private String key;
     private String password;
-    private Integer userid;
-    private String encryptedPassword;
-
-    public CredentialModel(Integer credentialid, String url, String username, String key, String password, Integer userid) {
-        this.credentialid = credentialid;
+    
+    public CredentialModel(Integer id, String url, String username, String key, String password, Integer userid) {
+        this.id = id;
         this.url = url;
         this.username = username;
         this.key = key;
         this.password = password;
         this.userid = userid;
-
-        try {
-            Map<String, String> map = gson.fromJson(password, Map.class);
-            setEncryptedPassword(map.get("cipherText"));
-        }
-        catch (JsonSyntaxException e){
-
-        }
     }
 
     public CredentialModel(String url, String username, String key, String password, Integer userid) {
@@ -40,14 +30,6 @@ public class CredentialModel {
         this.key = key;
         this.password = password;
         this.userid = userid;
-    }
-
-    public Integer getCredentialid() {
-        return credentialid;
-    }
-
-    public void setCredentialid(Integer credentialid) {
-        this.credentialid = credentialid;
     }
 
     public String getUrl() {
@@ -78,27 +60,15 @@ public class CredentialModel {
         return password;
     }
 
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
     public String getEncryptedPassword() {
-        return encryptedPassword;
+        return password;
     }
 
     public String getTruePassword(){
-        return CredentialService.decryptPassword(getPassword(),key);
+        return EncryptionService.decryptValue(password,key);
     }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Integer getUserid() {
-        return userid;
-    }
-
-    public void setUserid(Integer userid) {
-        this.userid = userid;
     }
 }

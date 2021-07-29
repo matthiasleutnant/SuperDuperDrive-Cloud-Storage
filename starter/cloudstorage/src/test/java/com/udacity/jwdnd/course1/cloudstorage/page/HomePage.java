@@ -23,9 +23,6 @@ public class HomePage {
     @FindBy(id = "nav-notes-tab")
     WebElement notesTab;
 
-    @FindBy(id = "nav-credentials-tab")
-    WebElement credentialsTab;
-
     @FindBy(id = "newNoteButton")
     WebElement newNoteButton;
 
@@ -100,8 +97,9 @@ public class HomePage {
 
 
     public void changeToCredentialsTab() {
-        credentialsTab.click();
         WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement credentialsTab = wait.until(webDriver -> webDriver.findElement(By.id("nav-credentials-tab")));
+        credentialsTab.click();
         wait.until(webDriver -> webDriver.findElement(By.id("newCredentialButton")));
     }
 

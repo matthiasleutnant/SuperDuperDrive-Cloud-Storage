@@ -1,14 +1,17 @@
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import com.udacity.jwdnd.course1.cloudstorage.mapper.IMapper;
+import com.udacity.jwdnd.course1.cloudstorage.model.AbstractModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.IForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-public class AbstractService<T> implements IService<T>{
+@Transactional
+public abstract class AbstractService<T extends AbstractModel> implements IService<T>{
 
     protected final IMapper<T> mapper;
     protected final UserService userService;

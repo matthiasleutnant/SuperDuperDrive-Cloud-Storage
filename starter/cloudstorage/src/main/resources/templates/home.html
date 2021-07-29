@@ -150,8 +150,8 @@
                                 <tbody>
                                 <tr th:each="credential : ${credentials}">
                                     <td>
-                                        <button th:name="'editCredentialButton_'+${credential.getUrl()}" type="submit" class="btn btn-success" th:data-parameter1="${credential.getCredentialid()}" th:data-parameter2="${credential.getUrl()}" th:data-parameter3="${credential.getUsername()}" th:data-parameter4="${credential.getTruePassword()}" th:onclick="showCredentialModal(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'),this.getAttribute('data-parameter4'))">Edit</button>
-                                        <form action="#" th:action="@{/home/credentials/{credentialid}/delete(credentialid=${credential.getCredentialid()})}" method="POST">
+                                        <button th:name="'editCredentialButton_'+${credential.getUrl()}" type="submit" class="btn btn-success" th:data-parameter1="${credential.getId()}" th:data-parameter2="${credential.getUrl()}" th:data-parameter3="${credential.getUsername()}" th:data-parameter4="${credential.getTruePassword()}" th:onclick="showCredentialModal(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'),this.getAttribute('data-parameter4'))">Edit</button>
+                                        <form action="#" th:action="@{/home/credentials/{credentialid}/delete(credentialid=${credential.getId()})}" method="POST">
                                             <button th:name="${'credential_delete_'+credential.getUrl()}" type="submit" class="btn btn-danger">Delete</button>
                                         </form>
                                     </td>
@@ -174,18 +174,18 @@
                                     </div>
                                     <div class="modal-body">
                                         <form action="#" th:object="${credentialForm}" th:action="@{/home/credential}" method="POST">
-                                            <input type="hidden" name="credentialId" th:field="*{credentialid}" id="credential-id">
+                                            <input type="hidden" name="credentialId" th:field="*{id}" id="credential-id">
                                             <input type="hidden" name="credentialKey" th:field="*{key}" id="credential-key">
                                             <div class="form-group">
-                                                <label for="editNoteTitle" class="col-form-label">URL</label>
+                                                <label for="credential-url" class="col-form-label">URL</label>
                                                 <input type="text" name= "url" class="form-control" th:field="*{url}" id="credential-url" maxlength="100" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="editNoteTitle" class="col-form-label">Username</label>
+                                                <label for="credential-username" class="col-form-label">Username</label>
                                                 <input type="text" name= "username" class="form-control" th:field="*{username}" id="credential-username" maxlength="30" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="editNoteTitle" class="col-form-label">Password</label>
+                                                <label for="credential-password" class="col-form-label">Password</label>
                                                 <input type="text" name= "password" class="form-control" th:field="*{password}" id="credential-password" maxlength="30" required>
                                             </div>
                                             <button id="credentialSubmit" type="submit" class="d-none"></button>

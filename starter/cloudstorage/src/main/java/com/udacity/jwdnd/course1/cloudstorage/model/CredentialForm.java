@@ -1,27 +1,18 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
-public class CredentialForm {
-    private Integer credentialid;
+public class CredentialForm extends AbstractForm<CredentialModel> implements IForm<CredentialModel> {
     private String url;
     private String username;
     private String password;
     private String key;
 
-    public CredentialForm(Integer credentialid, String url, String username, String password, String key) {
-        this.credentialid = credentialid;
+    public CredentialForm(Integer id, String url, String username, String password, String key) {
+        this.id = id;
         this.url = url;
         this.username = username;
         this.password = password;
         this.key = key;
 
-    }
-
-    public Integer getCredentialid() {
-        return credentialid;
-    }
-
-    public void setCredentialid(Integer credentialid) {
-        this.credentialid = credentialid;
     }
 
     public String getUrl() {

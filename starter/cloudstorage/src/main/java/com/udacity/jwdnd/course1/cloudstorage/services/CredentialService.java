@@ -1,6 +1,5 @@
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
-import com.google.gson.Gson;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.*;
 import org.springframework.stereotype.Service;
@@ -9,75 +8,40 @@ import java.security.SecureRandom;
 import java.util.*;
 
 @Service
-public class CredentialService {
+public class CredentialService extends AbstractService<CredentialModel> {
 
-    private final UserService userService;
-    private final CredentialMapper credentialMapper;
-    private static final Gson gson = new Gson();
+    private final EncryptionService encryptionService;
 
-    public CredentialService(UserService userService, CredentialMapper credentialMapper) {
-        this.userService = userService;
-        this.credentialMapper = credentialMapper;
+    public CredentialService(CredentialMapper mapper, UserService userService, EncryptionService encryptionService) {
+        super(mapper, userService);
+        this.encryptionService = encryptionService;
     }
 
-    public int storeCredential(String username, CredentialForm credentialForm) throws Exception {
-        NoteModel noteModel;
+
+    public int store(String username, CredentialForm credentialForm) throws Exception {
         User user = userService.getUser(username);
-        CredentialModel credential = new CredentialModel(credentialForm.getUrl(),credentialForm.getUsername(),"",
-                credentialForm.getPassword(),user.getUserId());
-        encryptPassword(credential);
-        return credentialMapper.insert(credential);
+        credentialForm.setUserid(user.getUserId());
+        return mapper.insert(encryptPassword(credentialForm));
     }
 
-    public List<CredentialModel> getCredentials(String username) {
+    public int edit(String username,CredentialForm credentialForm) throws Exception {
         User user = userService.getUser(username);
-        return credentialMapper.getCredentialByUserId(user.getUserId());
+        credentialForm.setUserid(user.getUserId());
+            return mapper.update(encryptPassword(credentialForm));
     }
 
-    public int editCredential(String username,CredentialForm credentialForm) throws Exception {
-        CredentialModel credential = credentialMapper.getCredentialByCredentialId(credentialForm.getCredentialid());
-        User user = userService.getUser(username);
-        if(user.getUserId()==credential.getUserid()){
-            credential.setUrl(credentialForm.getUrl());
-            credential.setUsername(credentialForm.getUsername());
-            credential.setPassword(credentialForm.getPassword());
-            credential = encryptPassword(credential);
-            return credentialMapper.updateCredential(credential);
-        }
-        return -1;
-    }
-
-    public int deleteCredential(String username, int credentialid) {
-        User user = userService.getUser(username);
-        return credentialMapper.deleteCredentialByCredentialId(credentialid, user.getUserId());
-    }
-
-    private CredentialModel encryptPassword(CredentialModel credentialModel) throws Exception {
+    private CredentialForm encryptPassword(CredentialForm credentialForm) throws Exception {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16];
         random.nextBytes(salt);
-        String key;
-        if(credentialModel.getKey()=="") {
-            key = Base64.getEncoder().encodeToString(salt);
-        }
-        else{
-            key = credentialModel.getKey();
-        }
-        Map<String, String> encodedPass = AesCtrArgon2HmacExample.aes256CtrArgon2HMacEncrypt(credentialModel.getPassword(), key);
-        credentialModel.setPassword(gson.toJson(encodedPass));
-        credentialModel.setEncryptedPassword(encodedPass.get("cipherText"));
-        credentialModel.setKey(key);
-        return credentialModel;
+        String key = Base64.getEncoder().encodeToString(salt);
+        credentialForm.setPassword(encryptionService.encryptValue(credentialForm.getPassword(),key));
+        credentialForm.setKey(key);
+        return credentialForm;
     }
 
-    public static String decryptPassword(String encryptedMsg, String key){
-        Map<String,String> map = gson.fromJson(encryptedMsg, Map.class);
-        String result="";
-        try {
-            result = AesCtrArgon2HmacExample.aes256CtrArgon2HMacDecrypt(map,key);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+    public int delete(String username, int id) {
+        User user = userService.getUser(username);
+        return mapper.deleteByUserIdAndId(user.getUserId(), id);
     }
 }

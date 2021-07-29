@@ -1,11 +1,11 @@
 package com.udacity.jwdnd.course1.cloudstorage.mapper;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.AbstractModel;
 import com.udacity.jwdnd.course1.cloudstorage.model.IForm;
-import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 
 import java.util.List;
 
-public interface IMapper<T>{
+public interface IMapper<T extends AbstractModel>{
     int insert(IForm<T> form);
 
     List<T> getByUserId(int userId);

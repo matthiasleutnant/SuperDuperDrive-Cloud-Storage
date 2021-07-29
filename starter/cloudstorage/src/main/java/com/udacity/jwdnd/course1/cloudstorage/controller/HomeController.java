@@ -49,7 +49,7 @@ public class HomeController {
                               CredentialForm credentialForm) {
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
         model.addAttribute("notes", noteService.get(authentication.getName()));
-        model.addAttribute("credentials", credentialService.getCredentials(authentication.getName()));
+        model.addAttribute("credentials", credentialService.get(authentication.getName()));
         model.addAttribute("success", success != "");
         model.addAttribute("successtext", success);
         model.addAttribute("error", error != "");
@@ -151,14 +151,14 @@ public class HomeController {
     @PostMapping("/credential")
     public String postCredential(Authentication authentication, CredentialForm credentialForm) throws Exception {
         try {
-            if (credentialForm.getCredentialid() == null) {
-                if (credentialService.storeCredential(authentication.getName(), credentialForm) > 0) {
+            if (credentialForm.getId() == null) {
+                if (credentialService.store(authentication.getName(), credentialForm) > 0) {
                     success = "You created the credential for " + credentialForm.getUrl() + " successfully";
                 } else {
                     error = "Credential was not created";
                 }
             } else {
-                if (credentialService.editCredential(authentication.getName(), credentialForm) > 0) {
+                if (credentialService.edit(authentication.getName(), credentialForm) > 0) {
                     success = "You edited the credential for " + credentialForm.getUrl() + " successfully";
                 } else {
                     error = "Credential was not edited";
@@ -173,7 +173,7 @@ public class HomeController {
 
     @PostMapping("/credentials/{credentialid}/delete")
     public String postCredentialDelete(Authentication authentication, @PathVariable("credentialid") int credentialid) {
-        if (credentialService.deleteCredential(authentication.getName(), credentialid) > 0) {
+        if (credentialService.delete(authentication.getName(), credentialid) > 0) {
             success = "You deleted the credentials successfully";
         } else {
             error = "Credentials was not deleted";

@@ -24,6 +24,7 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.File;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
@@ -252,7 +254,7 @@ class CloudStorageApplicationTests {
         String password = "Geheimespassword";
         HomePage homePage = createCredential(url, user, password);
 
-        List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
+        List<CredentialModel> creadential = credentialMapper.getByUserId(userService.getUser(username).getUserId());
         assertThat(creadential.isEmpty()).isFalse();
         assertThat(creadential.size()).isEqualTo(1);
         assertThat(creadential.get(0).getUrl()).isEqualTo(url);
@@ -270,7 +272,7 @@ class CloudStorageApplicationTests {
     }
 
     @Test
-    void testCredentialEditing() {
+    void testCredentialEditing() throws InterruptedException {
         String url = "192.168.0.1";
         String user = "user";
         String password = "Geheimespasswort";
@@ -278,9 +280,10 @@ class CloudStorageApplicationTests {
         String newUrl = url + ":8080";
         String newUser = "user2";
         String newpw = "superGeheimespasswort123";
+        Thread.sleep(50);
         homePage.editCredential(url, newUrl, newUser, newpw);
 
-        List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
+        List<CredentialModel> creadential = credentialMapper.getByUserId(userService.getUser(username).getUserId());
         assertThat(creadential.isEmpty()).isFalse();
         assertThat(creadential.size()).isEqualTo(1);
         assertThat(creadential.get(0).getUrl()).isEqualTo(newUrl);
@@ -305,15 +308,18 @@ class CloudStorageApplicationTests {
     }
 
     @Test
-    void testCredentialDeletion() {
-        String url = "192.168.0.1";
+    void testCredentialDeletion() throws InterruptedException {
+        String url = "192.168.0.2";
         String user = "user";
         String password = "Geheimespassword";
+        List<CredentialModel> creadential;
         HomePage homePage = createCredential(url, user, password);
+        creadential = credentialMapper.getByUserId(userService.getUser(username).getUserId());
+        assertThat(creadential.isEmpty()).isFalse();
         homePage.deleteCredential(url);
 
-        List<CredentialModel> creadential = credentialMapper.getCredentialByUserId(userService.getUser(username).getUserId());
-        assertThat(creadential.isEmpty()).isTrue();
+
+        creadential = credentialMapper.getByUserId(userService.getUser(username).getUserId());
         assertThatThrownBy(() -> {
             driver.findElement(By.id("credential_url_" + url));
         }).isInstanceOf(NoSuchElementException.class);
@@ -323,6 +329,7 @@ class CloudStorageApplicationTests {
         assertThatThrownBy(() -> {
             driver.findElement(By.id("credential_password_" + url));
         }).isInstanceOf(NoSuchElementException.class);
+        assertThat(creadential.isEmpty()).isTrue();
     }
 
 
