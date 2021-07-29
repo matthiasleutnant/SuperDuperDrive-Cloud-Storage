@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
@@ -134,18 +135,21 @@ public class HomeController {
     public void getFileView(Authentication authentication, @PathVariable("filename") String filename,
                             HttpServletResponse response) throws IOException {
         FileModel fileModel = fileService.getFile(authentication.getName(), filename);
-        File tempFile = new File("src/main/resources/temp/" + filename);
-        tempFile.createNewFile();
-        new FileOutputStream(tempFile).write(fileModel.getFiledata());
+        File file = new File("src/main/resources/temp/" + filename);
+        file.createNewFile();
+        new FileOutputStream(file).write(fileModel.getFiledata());
         response.addHeader("Content-Disposition", "attachment; filename=" + filename);
         if (fileModel.getContenttype() != null) {
             response.setContentType(fileModel.getContenttype());
         } else {
             response.setContentType("application/octet-stream");
         }
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"" + file.getName() + "\""));
+        response.setContentLength((int) file.length());
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
 
-        Files.copy(tempFile.getAbsoluteFile().toPath(), response.getOutputStream());
-        tempFile.delete();
+        FileCopyUtils.copy(inputStream, response.getOutputStream());
+        file.delete();
     }
 
     @PostMapping("/credential")
