@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS USERS (
 );
 
 CREATE TABLE IF NOT EXISTS NOTES (
-    noteid INT PRIMARY KEY auto_increment,
+    id INT PRIMARY KEY auto_increment,
     notetitle VARCHAR(200),
     notedescription VARCHAR (2050),
     userid INT,

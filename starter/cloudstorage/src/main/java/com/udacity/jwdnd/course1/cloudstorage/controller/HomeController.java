@@ -48,7 +48,7 @@ public class HomeController {
     public String getHomepage(Authentication authentication, Model model, NoteForm noteForm,
                               CredentialForm credentialForm) {
         model.addAttribute("filemodel", fileService.getFiles(authentication.getName()));
-        model.addAttribute("notes", noteService.getNotes(authentication.getName()));
+        model.addAttribute("notes", noteService.get(authentication.getName()));
         model.addAttribute("credentials", credentialService.getCredentials(authentication.getName()));
         model.addAttribute("success", success != "");
         model.addAttribute("successtext", success);
@@ -102,7 +102,7 @@ public class HomeController {
                     error = "No new Node added";
                 }
             } else {
-                if (noteService.editNote(noteForm) > 0) {
+                if (noteService.edit(noteForm) > 0) {
                     success = "You edited the note " + noteForm.getTitle() + " successfully";
                 } else {
                     error = "Note was not edited";
@@ -119,7 +119,7 @@ public class HomeController {
 
     @PostMapping("/notes/{noteid}/delete")
     public String postNoteDelete(Authentication authentication, @PathVariable("noteid") int noteid) {
-        if (noteService.deleteNote(authentication.getName(), noteid) > 0) {
+        if (noteService.delete(authentication.getName(), noteid) > 0) {
             success = "You deleted the note successfully";
         } else {
             error = "Note was not deleted";

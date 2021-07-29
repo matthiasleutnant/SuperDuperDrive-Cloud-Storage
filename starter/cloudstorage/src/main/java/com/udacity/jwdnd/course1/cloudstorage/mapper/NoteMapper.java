@@ -10,16 +10,16 @@ import java.util.List;
 public interface NoteMapper extends IMapper<NoteModel>{
 
     @Insert("INSERT INTO NOTES (notetitle, notedescription, userid) VALUES(#{title}, #{description}, #{userid})")
-    @Options(useGeneratedKeys = true, keyProperty = "noteid")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(NoteForm noteForm);
 
     @Select("SELECT * FROM NOTES WHERE userid = #{userId}")
     List<NoteModel> getByUserId(int userId);
 
-    @Delete("DELETE FROM NOTES WHERE noteid = #{id} AND userid=#{userid}")
-    int deleteByUserIdAndId(int userid, int noteid);
+    @Delete("DELETE FROM NOTES WHERE id = #{id} AND userid=#{userid}")
+    int deleteByUserIdAndId(int userid, int id);
 
-    @Update("UPDATE NOTES SET notetitle = #{title}, notedescription= #{description} WHERE noteid = #{id}")
+    @Update("UPDATE NOTES SET notetitle = #{title}, notedescription= #{description} WHERE id = #{id}")
     int update(NoteForm noteForm);
 
     @Delete("DELETE FROM NOTES")
