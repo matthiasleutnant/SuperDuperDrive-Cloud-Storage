@@ -1,6 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
-public class NoteForm {
+public class NoteForm extends AbstractForm<NoteModel> implements IForm<NoteModel>{
     private String title;
     private String description;
     private Integer id;
@@ -8,14 +8,6 @@ public class NoteForm {
     public NoteForm(String title, String description, Integer id) {
         this.title = title;
         this.description = description;
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
         this.id = id;
     }
 

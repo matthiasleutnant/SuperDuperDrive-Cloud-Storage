@@ -13,6 +13,7 @@ public class CredentialForm {
         this.username = username;
         this.password = password;
         this.key = key;
+
     }
 
     public Integer getCredentialid() {

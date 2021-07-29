@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class DefaultController {
 
     @RequestMapping(value="*")
-    public String errorMapping(){
+    public String defaultMapping(){
         return "redirect:home";
     }
+
 }

@@ -1,5 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
+import com.udacity.jwdnd.course1.cloudstorage.mapper.IMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.NoteModel;
@@ -9,33 +10,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class NoteService {
-    private final NoteMapper noteMapper;
-    private final UserService userService;
+public class NoteService extends AbstractService<NoteModel> implements IService<NoteModel>{
 
-    public NoteService(NoteMapper noteMapper, UserService userService) {
-        this.noteMapper = noteMapper;
-        this.userService = userService;
+
+    public NoteService(IMapper<NoteModel> mapper, UserService userService) {
+        super(mapper, userService);
     }
 
-    public int storeNote(String username, NoteForm noteForm) {
-        NoteModel noteModel;
+    public int store(String username, NoteForm noteForm) {
         User user = userService.getUser(username);
-        noteModel = new NoteModel(noteForm.getTitle(), noteForm.getDescription(), user.getUserId());
-        return noteMapper.insert(noteModel);
+        noteForm.setUserid(user.getUserId());
+        return mapper.insert(noteForm);
     }
 
     public List<NoteModel> getNotes(String username) {
         User user = userService.getUser(username);
-        return noteMapper.getNoteByUserId(user.getUserId());
+        return mapper.getByUserId(user.getUserId());
     }
 
     public int editNote(NoteForm noteForm) {
-        return noteMapper.updateNote(noteForm.getId(),noteForm.getTitle(),noteForm.getDescription());
+        return mapper.update(noteForm);
     }
 
     public int deleteNote(String username, int noteid) {
         User user = userService.getUser(username);
-        return noteMapper.deleteNoteByUserIdAndNoteid(user.getUserId(), noteid);
+        return mapper.deleteByUserIdAndId(user.getUserId(), noteid);
     }
 }

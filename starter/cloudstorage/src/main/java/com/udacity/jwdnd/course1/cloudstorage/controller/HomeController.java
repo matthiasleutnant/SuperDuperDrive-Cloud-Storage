@@ -6,11 +6,14 @@ import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -23,9 +26,17 @@ public class HomeController {
     private final FileService fileService;
     private final NoteService noteService;
     private final CredentialService credentialService;
+    @Autowired
+    private Logger logger;
 
     private String error = "";
     private String success = "";
+
+    @RequestMapping(value = "*")
+    public String defaultMapping() {
+        return "redirect:/home";
+    }
+
 
     public HomeController(FileService fileService, NoteService noteService, CredentialService credentialService) {
         this.fileService = fileService;
@@ -71,20 +82,37 @@ public class HomeController {
         return "redirect:/home";
     }
 
+    /**
+     * I'm catching the "DataIntegrityViolationException" error just for practice purposes. It should actually be
+     * prevented by limitations in the html file, but it seems that line breaks in the html recognition are recognized
+     * as a single punctuation mark, but Java needs two punctuation marks to save them
+     *
+     * @param authentication
+     * @param noteForm
+     * @return
+     */
     @PostMapping("/note")
     public String postNote(Authentication authentication, NoteForm noteForm) {
-        if (noteForm.getId() == null) {
-            if (noteService.storeNote(authentication.getName(), noteForm) > 0) {
-                success = "You added the note " + noteForm.getTitle() + " successfully";
+        try {
+            int test = noteForm.getDescription().length();
+            if (noteForm.getId() == null) {
+                if (noteService.store(authentication.getName(), noteForm) > 0) {
+                    success = "You added the note " + noteForm.getTitle() + " successfully";
+                } else {
+                    error = "No new Node added";
+                }
             } else {
-                error = "No new Node added";
+                if (noteService.editNote(noteForm) > 0) {
+                    success = "You edited the note " + noteForm.getTitle() + " successfully";
+                } else {
+                    error = "Note was not edited";
+                }
             }
-        } else {
-            if (noteService.editNote(noteForm) > 0) {
-                success = "You edited the note " + noteForm.getTitle() + " successfully";
-            } else {
-                error = "Note was not edited";
-            }
+        } catch (DataIntegrityViolationException e) {
+            error = "The Note could not be edited/created, due to too long title/description";
+        } catch (Exception e) {
+            logger.error("An unexpected Error occurred", e);
+            error = "An unexpected Error occurred";
         }
         return "redirect:/home";
     }
@@ -110,26 +138,35 @@ public class HomeController {
         tempFile.createNewFile();
         new FileOutputStream(tempFile).write(fileModel.getFiledata());
         response.addHeader("Content-Disposition", "attachment; filename=" + filename);
-        response.setContentType(fileModel.getContenttype());
+        if (fileModel.getContenttype() != null) {
+            response.setContentType(fileModel.getContenttype());
+        } else {
+            response.setContentType("application/octet-stream");
+        }
+
         Files.copy(tempFile.getAbsoluteFile().toPath(), response.getOutputStream());
         tempFile.delete();
     }
 
     @PostMapping("/credential")
     public String postCredential(Authentication authentication, CredentialForm credentialForm) throws Exception {
-        if (credentialForm.getCredentialid() == null) {
-            if (credentialService.storeCredential(authentication.getName(), credentialForm) > 0) {
-                success = "You created the credential for " + credentialForm.getUrl() + " successfully";
+        try {
+            if (credentialForm.getCredentialid() == null) {
+                if (credentialService.storeCredential(authentication.getName(), credentialForm) > 0) {
+                    success = "You created the credential for " + credentialForm.getUrl() + " successfully";
+                } else {
+                    error = "Credential was not created";
+                }
             } else {
-                error = "Credential was not created";
+                if (credentialService.editCredential(authentication.getName(), credentialForm) > 0) {
+                    success = "You edited the credential for " + credentialForm.getUrl() + " successfully";
+                } else {
+                    error = "Credential was not edited";
+                }
             }
-        } else {
-            if (credentialService.editCredential(authentication.getName(), credentialForm) > 0) {
-                success = "You edited the credential for " + credentialForm.getUrl() + " successfully";
-            } else {
-                error = "Credential was not edited";
-            }
-
+        } catch (Exception e) {
+            logger.error(e.toString());
+            error = "An unexpected Error occurred";
         }
         return "redirect:/home";
     }

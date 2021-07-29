@@ -212,7 +212,7 @@ class CloudStorageApplicationTests {
         assertThatThrownBy(() -> {
             driver.findElement(By.id("id_note_description" + noteTitle));
         }).isInstanceOf(NoSuchElementException.class);
-        List<NoteModel> notes = noteMapper.getNoteByUserId(userService.getUser(username).getUserId());
+        List<NoteModel> notes = noteMapper.getByUserId(userService.getUser(username).getUserId());
         assertThat(notes.isEmpty()).isTrue();
     }
 

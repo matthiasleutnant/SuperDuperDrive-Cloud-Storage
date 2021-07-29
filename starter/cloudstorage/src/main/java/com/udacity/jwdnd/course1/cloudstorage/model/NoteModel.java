@@ -1,11 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
-public class NoteModel {
+public class NoteModel extends AbstractModel{
 
     private int noteid;
     private String notetitle;
     private String notedescription;
-    private int userid;
 
     public NoteModel(int noteid, String notetitle, String notedescription, int userid) {
         this.noteid = noteid;
@@ -42,13 +41,5 @@ public class NoteModel {
 
     public void setNotedescription(String notedescription) {
         this.notedescription = notedescription;
-    }
-
-    public int getUserid() {
-        return userid;
-    }
-
-    public void setUserid(int userid) {
-        this.userid = userid;
     }
 }
