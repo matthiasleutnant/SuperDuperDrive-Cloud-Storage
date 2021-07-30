@@ -135,21 +135,11 @@ public class HomeController {
     public void getFileView(Authentication authentication, @PathVariable("filename") String filename,
                             HttpServletResponse response) throws IOException {
         FileModel fileModel = fileService.getFile(authentication.getName(), filename);
-        File file = new File("src/main/resources/temp/" + filename);
-        file.createNewFile();
-        new FileOutputStream(file).write(fileModel.getFiledata());
         response.addHeader("Content-Disposition", "attachment; filename=" + filename);
-        if (fileModel.getContenttype() != null) {
             response.setContentType(fileModel.getContenttype());
-        } else {
-            response.setContentType("application/octet-stream");
-        }
-        response.setHeader("Content-Disposition", String.format("attachment; filename=\"" + file.getName() + "\""));
-        response.setContentLength((int) file.length());
-        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"" + fileModel.getFilename() + "\""));
 
-        FileCopyUtils.copy(inputStream, response.getOutputStream());
-        file.delete();
+        FileCopyUtils.copy(fileModel.getFiledata(), response.getOutputStream());
     }
 
     @PostMapping("/credential")
